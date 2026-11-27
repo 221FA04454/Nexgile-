@@ -1,0 +1,2 @@
+-- Demo household is seeded by backend/app/db/seed.py on API startup.
+-- Morgan Family / Alex Morgan / Sarah Wilson — fictional data only.

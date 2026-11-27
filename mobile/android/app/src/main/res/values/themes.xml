@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.WealthAgent" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/navy</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/gold</item>
+        <item name="android:statusBarColor">@color/navy</item>
+        <item name="android:navigationBarColor">@color/paper</item>
+        <item name="android:windowBackground">@color/paper</item>
+    </style>
+    <style name="Theme.WealthAgent.Splash" parent="Theme.WealthAgent">
+        <item name="android:windowBackground">@color/navy</item>
+    </style>
+</resources>

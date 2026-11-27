@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wealthagent
+          POSTGRES_PASSWORD: ci_not_for_production
+          POSTGRES_DB: wealthagent_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wealthagent"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      ENVIRONMENT: test
+      JWT_SECRET: ci-jwt-secret-not-for-production-use!!
+      TEST_DATABASE_URL: postgresql://wealthagent:ci_not_for_production@localhost:5432/wealthagent_test
+      DATABASE_URL: postgresql://wealthagent:ci_not_for_production@localhost:5432/wealthagent_test
+      REDIS_URL: redis://localhost:6379/0
+      ALLOW_SQLITE: "false"
+      ALLOW_MEMORY_CACHE: "false"
+      ALLOW_DEMO_SEED: "true"
+      ALLOW_CREATE_ALL: "true"
+      COOKIE_SECURE: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Alembic
+        run: alembic upgrade head
+      - name: Tests
+        run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install
+        run: npm install
+      - name: Lint stub
+        run: npm run lint
+      - name: Tests
+        run: npm test
+      - name: Build
+        run: npm run build
